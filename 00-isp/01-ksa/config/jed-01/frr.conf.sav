@@ -39,8 +39,10 @@ exit
 !
 router bgp 65101
  neighbor 10.255.11.1 remote-as 65101
+ neighbor 10.255.11.1 description sa-ix-01
  neighbor 10.255.11.1 update-source lo
  neighbor 10.255.11.2 remote-as 65101
+ neighbor 10.255.11.2 description sa-ix-02
  neighbor 10.255.11.2 update-source lo
  !
  address-family ipv4 unicast
