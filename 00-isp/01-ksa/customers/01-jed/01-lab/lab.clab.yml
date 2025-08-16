@@ -1,0 +1,16 @@
+name: jed-lab
+prefix: ""
+topology:
+  nodes:
+    # L2 handoff shim for the customer link
+    ksa-cust:
+      kind: bridge
+
+    # Reference the already-running ISP Jeddah node
+    sa-jed-01:
+      kind: ext-container
+      runtime: docker
+
+  links:
+    # Handoff on the ISP PE: add eth3 and connect it to the customer bridge
+    - endpoints: ["sa-jed-01:eth3", "ksa-cust:jedlabp1"]

@@ -1,0 +1,68 @@
+frr version 10.4.1
+frr defaults traditional
+hostname sa-metro-01
+!
+interface eth0
+ description sa-noc-mgmt
+ ip address 172.31.31.5/24
+exit
+!
+interface eth1
+ description sa-core-01:eth3
+ ip address 10.11.0.18/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth2
+ description sa-core-02:eth3
+ ip address 10.11.0.26/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth3
+ description sa-jed-01:eth1
+ ip address 10.11.0.34/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth4
+ description sa-dmm-01:eth1
+ ip address 10.11.0.42/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth5
+ description sa-ruh-01:eth1
+ ip address 10.11.0.50/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface lo
+ description sa-metro-01:lo
+ ip address 10.255.11.5/32
+ ip ospf area 0
+ ip ospf bfd
+exit
+!
+router bgp 65101
+ neighbor 10.255.11.1 remote-as 65101
+ neighbor 10.255.11.1 update-source lo
+ neighbor 10.255.11.2 remote-as 65101
+ neighbor 10.255.11.2 update-source lo
+exit
+!
+router ospf
+ ospf router-id 10.255.11.5
+ maximum-paths 1
+exit
+!

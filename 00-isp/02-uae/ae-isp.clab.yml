@@ -1,0 +1,114 @@
+name: ae-ix
+prefix: ""
+topology:
+  nodes:
+#    ae-mgmt:
+#      kind: bridge
+    wan:
+      kind: bridge
+
+    ae-ix-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-01:/etc/frr
+
+    ae-ix-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-02:/etc/frr
+
+    ae-core-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-01:/etc/frr
+
+    ae-core-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-02:/etc/frr
+
+    ae-metro-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-01:/etc/frr
+
+    ae-metro-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-02:/etc/frr
+
+    # Edge routers
+    ae-auh-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/auh-01:/etc/frr
+
+    ae-shj-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/shj-01:/etc/frr
+
+    ae-fjr-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/fjr-01:/etc/frr
+
+  links:
+    # Management
+#    - endpoints: ["ae-ix-01:eth0", "ae-mgmt:aeix01p1"]
+#    - endpoints: ["ae-ix-02:eth0", "ae-mgmt:aeix02p1"]
+#    - endpoints: ["ae-core-01:eth0", "ae-mgmt:aecore01p1"]
+#    - endpoints: ["ae-core-02:eth0", "ae-mgmt:aecore02p1"]
+#    - endpoints: ["ae-metro-01:eth0", "ae-mgmt:aemetro01p1"]
+#    - endpoints: ["ae-metro-02:eth0", "ae-mgmt:aemetro02p1"]
+#    - endpoints: ["ae-auh-01:eth0", "ae-mgmt:aejed01p1"]
+#    - endpoints: ["ae-shj-01:eth0", "ae-mgmt:aedmm01p1"]
+#    - endpoints: ["ae-fjr-01:eth0", "ae-mgmt:aeruh01p1"]
+
+    # WAN only on IX nodes
+    - endpoints: ["ae-ix-01:eth1", "wan:aewan1"]
+    - endpoints: ["ae-ix-02:eth1", "wan:aewan2"]
+
+    # IX ↔ Core
+    - endpoints: ["ae-ix-01:eth2", "ae-core-01:eth1"]
+    - endpoints: ["ae-ix-01:eth3", "ae-core-02:eth1"]
+    - endpoints: ["ae-ix-02:eth2", "ae-core-01:eth2"]
+    - endpoints: ["ae-ix-02:eth3", "ae-core-02:eth2"]
+
+    # Core ↔ Metro
+    - endpoints: ["ae-core-01:eth3", "ae-metro-01:eth1"]
+    - endpoints: ["ae-core-01:eth4", "ae-metro-02:eth1"]
+    - endpoints: ["ae-core-02:eth3", "ae-metro-01:eth2"]
+    - endpoints: ["ae-core-02:eth4", "ae-metro-02:eth2"]
+
+    # Edge ↔ Metro (redundant links)
+    - endpoints: ["ae-auh-01:eth1", "ae-metro-01:eth3"]
+    - endpoints: ["ae-auh-01:eth2", "ae-metro-02:eth3"]
+
+    - endpoints: ["ae-shj-01:eth1", "ae-metro-01:eth4"]
+    - endpoints: ["ae-shj-01:eth2", "ae-metro-02:eth4"]
+
+    - endpoints: ["ae-fjr-01:eth1", "ae-metro-01:eth5"]
+    - endpoints: ["ae-fjr-01:eth2", "ae-metro-02:eth5"]

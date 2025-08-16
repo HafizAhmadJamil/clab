@@ -1,0 +1,72 @@
+name: jed
+prefix: ""
+topology:
+  nodes:
+    # Existing ISP handoff bridge (unchanged)
+    ksa-isp1:
+      kind: bridge
+
+    # Customer Edge (unchanged; still bound to your FRR config dir)
+    jed-ce-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/ce-01:/etc/frr
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j SNAT --to-source 203.0.113.1
+        - ip link add lo1 type dummy
+        - ip link set lo1 up
+    # New DC spines
+    jed-sp1:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/spine-01:/etc/frr
+    jed-sp2:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/spine-02:/etc/frr
+
+    # New DC leaves
+    jed-l1:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/leaf-01:/etc/frr
+    jed-l2:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/leaf-02:/etc/frr
+    jed-l3:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/leaf-03:/etc/frr
+
+  links:
+    # ISP handoff (existing)
+    - endpoints: ["jed-ce-01:eth1", "ksa-isp1:port1"]
+
+    # CE dual-homed into the DC fabric (border to both spines)
+    - endpoints: ["jed-ce-01:eth2", "jed-sp1:eth1"]
+    - endpoints: ["jed-ce-01:eth3", "jed-sp2:eth1"]
+
+    # Leaf1 uplinks (dual to both spines)
+    - endpoints: ["jed-sp1:eth2", "jed-l1:eth1"]
+    - endpoints: ["jed-sp2:eth2", "jed-l1:eth2"]
+
+    # Leaf2 uplinks
+    - endpoints: ["jed-sp1:eth3", "jed-l2:eth1"]
+    - endpoints: ["jed-sp2:eth3", "jed-l2:eth2"]
+
+    # Leaf3 uplinks
+    - endpoints: ["jed-sp1:eth4", "jed-l3:eth1"]
+    - endpoints: ["jed-sp2:eth4", "jed-l3:eth2"]

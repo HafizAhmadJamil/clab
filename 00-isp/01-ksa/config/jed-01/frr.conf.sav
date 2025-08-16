@@ -1,0 +1,55 @@
+frr version 10.4.1
+frr defaults traditional
+hostname sa-jed-01
+!
+ip route 203.0.113.0/28 10.0.111.2 eth3
+!
+interface eth0
+ description sa-noc-mgmt
+ ip address 172.31.31.17/24
+exit
+!
+interface eth1
+ description sa-metro-01:eth3
+ ip address 10.11.0.33/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth2
+ description sa-metro-02:eth3
+ ip address 10.11.0.37/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth3
+ description jed-lab-dc-01:eth0
+ ip address 10.0.111.1/30
+exit
+!
+interface lo
+ description sa-jed-01:lo
+ ip address 10.255.11.7/32
+ ip ospf area 0
+ ip ospf bfd
+exit
+!
+router bgp 65101
+ neighbor 10.255.11.1 remote-as 65101
+ neighbor 10.255.11.1 update-source lo
+ neighbor 10.255.11.2 remote-as 65101
+ neighbor 10.255.11.2 update-source lo
+ !
+ address-family ipv4 unicast
+  network 203.0.113.0/28
+ exit-address-family
+exit
+!
+router ospf
+ ospf router-id 10.255.11.7
+ maximum-paths 1
+exit
+!

@@ -1,0 +1,114 @@
+name: pk-ix
+prefix: ""
+topology:
+  nodes:
+#    pk-mgmt:
+#      kind: bridge
+    wan:
+      kind: bridge
+
+    pk-ix-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-01:/etc/frr
+
+    pk-ix-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-02:/etc/frr
+
+    pk-core-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-01:/etc/frr
+
+    pk-core-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-02:/etc/frr
+
+    pk-metro-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-01:/etc/frr
+
+    pk-metro-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-02:/etc/frr
+
+    # Edge routers
+    pk-lhe-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/lhe-01:/etc/frr
+
+    pk-khi-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/khi-01:/etc/frr
+
+    pk-isb-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/isb-01:/etc/frr
+
+  links:
+    # Management
+#    - endpoints: ["pk-ix-01:eth0", "pk-mgmt:pkix01p1"]
+#    - endpoints: ["pk-ix-02:eth0", "pk-mgmt:pkix02p1"]
+#    - endpoints: ["pk-core-01:eth0", "pk-mgmt:pkcore01p1"]
+#    - endpoints: ["pk-core-02:eth0", "pk-mgmt:pkcore02p1"]
+#    - endpoints: ["pk-metro-01:eth0", "pk-mgmt:pkmetro01p1"]
+#    - endpoints: ["pk-metro-02:eth0", "pk-mgmt:pkmetro02p1"]
+#    - endpoints: ["pk-lhe-01:eth0", "pk-mgmt:pklhe01p1"]
+#    - endpoints: ["pk-khi-01:eth0", "pk-mgmt:pkkhi01p1"]
+#    - endpoints: ["pk-isb-01:eth0", "pk-mgmt:pkisb01p1"]
+
+    # WAN only on IX nodes (unchanged bridge name 'wan')
+    - endpoints: ["pk-ix-01:eth1", "wan:pkwan1"]
+    - endpoints: ["pk-ix-02:eth1", "wan:pkwan2"]
+
+    # IX ↔ Core
+    - endpoints: ["pk-ix-01:eth2", "pk-core-01:eth1"]
+    - endpoints: ["pk-ix-01:eth3", "pk-core-02:eth1"]
+    - endpoints: ["pk-ix-02:eth2", "pk-core-01:eth2"]
+    - endpoints: ["pk-ix-02:eth3", "pk-core-02:eth2"]
+
+    # Core ↔ Metro
+    - endpoints: ["pk-core-01:eth3", "pk-metro-01:eth1"]
+    - endpoints: ["pk-core-01:eth4", "pk-metro-02:eth1"]
+    - endpoints: ["pk-core-02:eth3", "pk-metro-01:eth2"]
+    - endpoints: ["pk-core-02:eth4", "pk-metro-02:eth2"]
+
+    # Edge ↔ Metro (redundant links)
+    - endpoints: ["pk-lhe-01:eth1", "pk-metro-01:eth3"]
+    - endpoints: ["pk-lhe-01:eth2", "pk-metro-02:eth3"]
+
+    - endpoints: ["pk-khi-01:eth1", "pk-metro-01:eth4"]
+    - endpoints: ["pk-khi-01:eth2", "pk-metro-02:eth4"]
+
+    - endpoints: ["pk-isb-01:eth1", "pk-metro-01:eth5"]
+    - endpoints: ["pk-isb-01:eth2", "pk-metro-02:eth5"]

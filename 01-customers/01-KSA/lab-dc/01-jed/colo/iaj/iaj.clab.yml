@@ -1,0 +1,35 @@
+name: iaj-colo
+prefix: ""
+
+topology:
+  nodes:
+    # Customer bridge for IAJ handoff
+    lab-dc:
+      kind: bridge
+
+    # Leaf doing VRF + 1:1 NAT
+    jed-l3:
+      kind: ext-container
+      runtime: docker
+      exec:
+        # --- VRF setup ---
+        - ip link add iaj type vrf table 1001
+        - ip link set iaj up
+        - ip link set dev eth3 master iaj
+        - ip link set eth3 up
+
+        # --- NAT 1:1 mapping ---
+        - iptables -t nat -A PREROUTING -d 203.0.113.9/32 -j DNAT --to-destination 10.111.113.2
+        - iptables -t nat -A POSTROUTING -s 10.111.113.2/32 -j SNAT --to-source 203.0.113.9
+
+    # CE router doing global SNAT (needs bypass rule)
+    jed-ce-01:
+      kind: ext-container
+      runtime: docker
+      exec:
+        # --- SNAT bypass for 203.0.113.9 ---
+        - iptables -t nat -I POSTROUTING 1 -s 203.0.113.9/32 -j ACCEPT
+
+  links:
+    # Connect l3’s eth3 to the IAJ bridge
+    - endpoints: ["jed-l3:eth3", "lab-dc:iajport1"]

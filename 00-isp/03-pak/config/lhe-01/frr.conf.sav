@@ -1,0 +1,44 @@
+frr version 10.4.1
+frr defaults traditional
+hostname pk-lhe-01
+!
+interface eth0
+ description pk-noc-mgmt
+ ip address 172.33.33.17/24
+exit
+!
+interface eth1
+ description pk-metro-01:eth3
+ ip address 10.13.0.33/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth2
+ description pk-metro-02:eth3
+ ip address 10.13.0.37/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface lo
+ description pk-lhe-01:lo
+ ip address 10.255.13.7/32
+ ip ospf area 0
+ ip ospf bfd
+exit
+!
+router bgp 65103
+ neighbor 10.255.13.1 remote-as 65103
+ neighbor 10.255.13.1 update-source lo
+ neighbor 10.255.13.2 remote-as 65103
+ neighbor 10.255.13.2 update-source lo
+exit
+!
+router ospf
+ ospf router-id 10.255.13.7
+ maximum-paths 1
+exit
+!

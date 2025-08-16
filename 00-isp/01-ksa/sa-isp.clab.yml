@@ -1,0 +1,114 @@
+name: sa-ix
+prefix: ""
+topology:
+  nodes:
+#    sa-mgmt:
+#      kind: bridge
+    wan:
+      kind: bridge
+
+    sa-ix-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-01:/etc/frr
+
+    sa-ix-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-02:/etc/frr
+
+    sa-core-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-01:/etc/frr
+
+    sa-core-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-02:/etc/frr
+
+    sa-metro-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-01:/etc/frr
+
+    sa-metro-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-02:/etc/frr
+
+    # New edge routers
+    sa-jed-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/jed-01:/etc/frr
+
+    sa-dmm-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/dmm-01:/etc/frr
+
+    sa-ruh-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/ruh-01:/etc/frr
+
+  links:
+    # Management
+#    - endpoints: ["sa-ix-01:eth0", "sa-mgmt:saix01p1"]
+#    - endpoints: ["sa-ix-02:eth0", "sa-mgmt:saix02p1"]
+#    - endpoints: ["sa-core-01:eth0", "sa-mgmt:core01p1"]
+#    - endpoints: ["sa-core-02:eth0", "sa-mgmt:core02p1"]
+#    - endpoints: ["sa-metro-01:eth0", "sa-mgmt:metro01p1"]
+#    - endpoints: ["sa-metro-02:eth0", "sa-mgmt:metro02p1"]
+#    - endpoints: ["sa-jed-01:eth0", "sa-mgmt:jed01p1"]
+#    - endpoints: ["sa-dmm-01:eth0", "sa-mgmt:dmm01p1"]
+#    - endpoints: ["sa-ruh-01:eth0", "sa-mgmt:ruh01p1"]
+
+    # WAN only on IX nodes (as before)
+    - endpoints: ["sa-ix-01:eth1", "wan:sawan1"]
+    - endpoints: ["sa-ix-02:eth1", "wan:sawan2"]
+
+    # IX ↔ Core
+    - endpoints: ["sa-ix-01:eth2", "sa-core-01:eth1"]
+    - endpoints: ["sa-ix-01:eth3", "sa-core-02:eth1"]
+    - endpoints: ["sa-ix-02:eth2", "sa-core-01:eth2"]
+    - endpoints: ["sa-ix-02:eth3", "sa-core-02:eth2"]
+
+    # Core ↔ Metro
+    - endpoints: ["sa-core-01:eth3", "sa-metro-01:eth1"]
+    - endpoints: ["sa-core-01:eth4", "sa-metro-02:eth1"]
+    - endpoints: ["sa-core-02:eth3", "sa-metro-01:eth2"]
+    - endpoints: ["sa-core-02:eth4", "sa-metro-02:eth2"]
+
+    # Edge ↔ Metro (redundant: each edge to both metros)
+    - endpoints: ["sa-jed-01:eth1", "sa-metro-01:eth3"]
+    - endpoints: ["sa-jed-01:eth2", "sa-metro-02:eth3"]
+
+    - endpoints: ["sa-dmm-01:eth1", "sa-metro-01:eth4"]
+    - endpoints: ["sa-dmm-01:eth2", "sa-metro-02:eth4"]
+
+    - endpoints: ["sa-ruh-01:eth1", "sa-metro-01:eth5"]
+    - endpoints: ["sa-ruh-01:eth2", "sa-metro-02:eth5"]

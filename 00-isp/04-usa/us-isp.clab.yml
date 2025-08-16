@@ -1,0 +1,114 @@
+name: us-ix
+prefix: ""
+topology:
+  nodes:
+#    us-mgmt:
+#      kind: bridge
+    wan:
+      kind: bridge
+
+    us-ix-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-01:/etc/frr
+
+    us-ix-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      exec:
+        - iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+      binds:
+        - config/ix-02:/etc/frr
+
+    us-core-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-01:/etc/frr
+
+    us-core-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/core-02:/etc/frr
+
+    us-metro-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-01:/etc/frr
+
+    us-metro-02:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/metro-02:/etc/frr
+
+    # Edge routers
+    us-ny-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/ny-01:/etc/frr
+
+    us-dc-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/dc-01:/etc/frr
+
+    us-ca-01:
+      kind: linux
+      image: ghcr.io/miajdev/frr
+      network-mode: none
+      binds:
+        - config/ca-01:/etc/frr
+
+  links:
+    # Management
+#    - endpoints: ["us-ix-01:eth0", "us-mgmt:usix01p1"]
+#    - endpoints: ["us-ix-02:eth0", "us-mgmt:usix02p1"]
+#    - endpoints: ["us-core-01:eth0", "us-mgmt:uscore01p1"]
+#    - endpoints: ["us-core-02:eth0", "us-mgmt:uscore02p1"]
+#    - endpoints: ["us-metro-01:eth0", "us-mgmt:usmetro01p1"]
+#    - endpoints: ["us-metro-02:eth0", "us-mgmt:usmetro02p1"]
+#    - endpoints: ["us-ny-01:eth0", "us-mgmt:usny01p1"]
+#    - endpoints: ["us-dc-01:eth0", "us-mgmt:usdc01p1"]
+#    - endpoints: ["us-ca-01:eth0", "us-mgmt:usca01p1"]
+
+    # WAN only on IX nodes (bridge stays 'wan')
+    - endpoints: ["us-ix-01:eth1", "wan:uswan1"]
+    - endpoints: ["us-ix-02:eth1", "wan:uswan2"]
+
+    # IX ↔ Core
+    - endpoints: ["us-ix-01:eth2", "us-core-01:eth1"]
+    - endpoints: ["us-ix-01:eth3", "us-core-02:eth1"]
+    - endpoints: ["us-ix-02:eth2", "us-core-01:eth2"]
+    - endpoints: ["us-ix-02:eth3", "us-core-02:eth2"]
+
+    # Core ↔ Metro
+    - endpoints: ["us-core-01:eth3", "us-metro-01:eth1"]
+    - endpoints: ["us-core-01:eth4", "us-metro-02:eth1"]
+    - endpoints: ["us-core-02:eth3", "us-metro-01:eth2"]
+    - endpoints: ["us-core-02:eth4", "us-metro-02:eth2"]
+
+    # Edge ↔ Metro (redundant links)
+    - endpoints: ["us-ny-01:eth1", "us-metro-01:eth3"]
+    - endpoints: ["us-ny-01:eth2", "us-metro-02:eth3"]
+
+    - endpoints: ["us-dc-01:eth1", "us-metro-01:eth4"]
+    - endpoints: ["us-dc-01:eth2", "us-metro-02:eth4"]
+
+    - endpoints: ["us-ca-01:eth1", "us-metro-01:eth5"]
+    - endpoints: ["us-ca-01:eth2", "us-metro-02:eth5"]

@@ -1,0 +1,49 @@
+name: ix-peers
+prefix: ""
+topology:
+  nodes:
+    sa-ix-01: { kind: ext-container }
+    sa-ix-02: { kind: ext-container }
+    ae-ix-01: { kind: ext-container }
+    ae-ix-02: { kind: ext-container }
+    pk-ix-01: { kind: ext-container }
+    pk-ix-02: { kind: ext-container }
+    us-ix-01: { kind: ext-container }
+    us-ix-02: { kind: ext-container }
+
+  links:
+    # 1–4 KSA–UAE
+    - endpoints: ["sa-ix-01:eth11","ae-ix-01:eth11"]   # 172.16.0.0/30  -> .1/.2
+    - endpoints: ["sa-ix-01:eth12","ae-ix-02:eth11"]   # 172.16.0.4/30  -> .5/.6
+    - endpoints: ["sa-ix-02:eth11","ae-ix-01:eth12"]   # 172.16.0.8/30  -> .9/.10
+    - endpoints: ["sa-ix-02:eth12","ae-ix-02:eth12"]   # 172.16.0.12/30 -> .13/.14
+
+    # 5–8 KSA–PAK
+    - endpoints: ["sa-ix-01:eth13","pk-ix-01:eth11"]   # 172.16.0.16/30 -> .17/.18
+    - endpoints: ["sa-ix-01:eth14","pk-ix-02:eth11"]   # 172.16.0.20/30 -> .21/.22
+    - endpoints: ["sa-ix-02:eth13","pk-ix-01:eth12"]   # 172.16.0.24/30 -> .25/.26
+    - endpoints: ["sa-ix-02:eth14","pk-ix-02:eth12"]   # 172.16.0.28/30 -> .29/.30
+
+    # 9–12 KSA–USA
+    - endpoints: ["sa-ix-01:eth15","us-ix-01:eth11"]   # 172.16.0.32/30 -> .33/.34
+    - endpoints: ["sa-ix-01:eth16","us-ix-02:eth11"]   # 172.16.0.36/30 -> .37/.38
+    - endpoints: ["sa-ix-02:eth15","us-ix-01:eth12"]   # 172.16.0.40/30 -> .41/.42
+    - endpoints: ["sa-ix-02:eth16","us-ix-02:eth12"]   # 172.16.0.44/30 -> .45/.46
+
+    # 13–16 UAE–PAK
+    - endpoints: ["ae-ix-01:eth13","pk-ix-01:eth13"]   # 172.16.0.48/30 -> .49/.50
+    - endpoints: ["ae-ix-01:eth14","pk-ix-02:eth13"]   # 172.16.0.52/30 -> .53/.54
+    - endpoints: ["ae-ix-02:eth13","pk-ix-01:eth14"]   # 172.16.0.56/30 -> .57/.58
+    - endpoints: ["ae-ix-02:eth14","pk-ix-02:eth14"]   # 172.16.0.60/30 -> .61/.62
+
+    # 17–20 UAE–USA
+    - endpoints: ["ae-ix-01:eth15","us-ix-01:eth13"]   # 172.16.0.64/30 -> .65/.66
+    - endpoints: ["ae-ix-01:eth16","us-ix-02:eth13"]   # 172.16.0.68/30 -> .69/.70
+    - endpoints: ["ae-ix-02:eth15","us-ix-01:eth14"]   # 172.16.0.72/30 -> .73/.74
+    - endpoints: ["ae-ix-02:eth16","us-ix-02:eth14"]   # 172.16.0.76/30 -> .77/.78
+
+    # 21–24 PAK–USA
+    - endpoints: ["pk-ix-01:eth15","us-ix-01:eth15"]   # 172.16.0.80/30 -> .81/.82
+    - endpoints: ["pk-ix-01:eth16","us-ix-02:eth15"]   # 172.16.0.84/30 -> .85/.86
+    - endpoints: ["pk-ix-02:eth15","us-ix-01:eth16"]   # 172.16.0.88/30 -> .89/.90
+    - endpoints: ["pk-ix-02:eth16","us-ix-02:eth16"]   # 172.16.0.92/30 -> .93/.94

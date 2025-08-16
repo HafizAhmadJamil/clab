@@ -1,0 +1,118 @@
+frr version 10.4.1
+frr defaults traditional
+hostname us-ix-01
+!
+ip route 0.0.0.0/0 10.0.1.1 eth1
+!
+interface eth0
+ description us-noc-mgmt
+ ip address 172.34.34.11/24
+exit
+!
+interface eth1
+ description us-nat-gw
+ ip address 10.0.1.107/24
+exit
+!
+interface eth2
+ description us-core-01:eth1
+ ip address 10.14.0.1/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth3
+ description us-core-02:eth1
+ ip address 10.14.0.5/30
+ ip ospf area 0
+ ip ospf bfd
+ ip ospf network point-to-point
+exit
+!
+interface eth11
+ description sa-ix-01:eth15
+ ip address 172.16.0.34/30
+exit
+!
+interface eth12
+ description sa-ix-02:eth15
+ ip address 172.16.0.42/30
+exit
+!
+interface eth13
+ description ae-ix-01:eth15
+ ip address 172.16.0.66/30
+exit
+!
+interface eth14
+ description ae-ix-02:eth15
+ ip address 172.16.0.74/30
+exit
+!
+interface eth15
+ description pk-ix-01:eth15
+ ip address 172.16.0.82/30
+exit
+!
+interface eth16
+ description pk-ix-02:eth15
+ ip address 172.16.0.90/30
+exit
+!
+interface lo
+ description us-ix-01-lo
+ ip address 10.255.14.1/32
+ ip ospf area 0
+ ip ospf bfd
+exit
+!
+router bgp 65104
+ bgp router-id 10.255.14.1
+ no bgp ebgp-requires-policy
+ bgp cluster-id 10.255.14.1
+ timers bgp 30 90
+ neighbor CLIENTS peer-group
+ neighbor CLIENTS remote-as 65104
+ neighbor CLIENTS update-source lo
+ neighbor 10.255.14.3 peer-group CLIENTS
+ neighbor 10.255.14.3 description us-core-01
+ neighbor 10.255.14.4 peer-group CLIENTS
+ neighbor 10.255.14.4 description us-core-02
+ neighbor 10.255.14.5 peer-group CLIENTS
+ neighbor 10.255.14.5 description us-metro-01
+ neighbor 10.255.14.6 peer-group CLIENTS
+ neighbor 10.255.14.6 description us-metro-02
+ neighbor 10.255.14.7 peer-group CLIENTS
+ neighbor 10.255.14.7 description us-ny-01
+ neighbor 10.255.14.8 peer-group CLIENTS
+ neighbor 10.255.14.8 description us-dc-01
+ neighbor 10.255.14.9 peer-group CLIENTS
+ neighbor 10.255.14.9 description us-ca-01
+ neighbor 10.255.14.2 remote-as 65104
+ neighbor 10.255.14.2 description us-ix-02
+ neighbor 10.255.14.2 update-source lo
+ neighbor 172.16.0.33 remote-as 65101
+ neighbor 172.16.0.33 description sa-ix-01
+ neighbor 172.16.0.41 remote-as 65101
+ neighbor 172.16.0.41 description sa-ix-02
+ neighbor 172.16.0.65 remote-as 65102
+ neighbor 172.16.0.65 description ae-ix-01
+ neighbor 172.16.0.73 remote-as 65102
+ neighbor 172.16.0.73 description ae-ix-02
+ neighbor 172.16.0.81 remote-as 65103
+ neighbor 172.16.0.81 description pk-ix-01
+ neighbor 172.16.0.89 remote-as 65103
+ neighbor 172.16.0.89 description pk-ix-02
+ !
+ address-family ipv4 unicast
+  neighbor CLIENTS route-reflector-client
+  neighbor CLIENTS default-originate
+ exit-address-family
+exit
+!
+router ospf
+ ospf router-id 10.255.14.1
+ maximum-paths 1
+exit
+!

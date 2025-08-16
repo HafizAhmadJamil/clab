@@ -1,0 +1,29 @@
+frr version 10.4.1
+frr defaults traditional
+hostname sp1
+!
+interface eth1
+ description jed-dc-lab-ce-01:eth2
+ ip address 10.111.0.2/30
+exit
+!
+interface eth2
+ description jed-dc-l1:eth1
+ ip address 10.111.0.9/30
+exit
+!
+interface eth3
+ description jed-dc-l2:eth1
+ ip address 10.111.0.17/30
+exit
+!
+interface eth4
+ description jed-dc-l3:eth1
+ ip address 10.111.0.25/30
+exit
+!
+interface lo
+ description jed-lab-dc-lo-1
+ ip address 10.255.111.1/32
+exit
+!
