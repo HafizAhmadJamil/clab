@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SESSION="LAB-DC"
+SESSION="DMM-DC"
 
-# Mapping of window names to container names
+# Mapping of window names to DMM container names
 declare -A DEVICES=(
-    ["ce-01"]="ce-01"
-    ["spine-01"]="sp1"
-    ["spine-02"]="sp2"
-    ["leaf-01"]="l1"
-    ["leaf-02"]="l2"
-    ["leaf-03"]="l3"
+    ["ce-01"]="dmm-ce-01"
+    ["spine-01"]="dmm-sp1"
+    ["spine-02"]="dmm-sp2"
+    ["leaf-01"]="dmm-l1"
+    ["leaf-02"]="dmm-l2"
+    ["leaf-03"]="dmm-l3"
 )
 
-# Order of windows to create
+# Order of windows to create (same as before)
 ORDER=(
     ce-01
     spine-01
