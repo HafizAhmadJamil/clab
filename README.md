@@ -5,8 +5,23 @@ docker ps --filter "ancestor=ghcr.io/miajdev/frr" --format '{{.Names}}' \
 | while read -r c; do
     echo "=== $c ==="
     docker exec "$c" vtysh -c "show running-config" \
-        | awk '/^interface/{iface=$2} /^ description/{desc=$0} /^ ip address/{print iface,":",desc,":",$3}'
+    | awk '
+        /^interface/ {
+            iface=$2
+            desc=""
+        }
+        /^ description/ {
+            desc=$0
+        }
+        /^ ip address/ {
+            if (desc == "") {
+                print iface, ":", "no description", ":", $3
+            } else {
+                print iface, ":", desc, ":", $3
+            }
+        }'
 done
+
 
 # Define a list of loopback IP addresses to test connectivity.
 LOOPS="10.255.11.1 10.255.11.2 10.255.11.3 10.255.11.4 10.255.11.5 10.255.11.6 10.255.11.7 10.255.11.8 10.255.11.9"
